@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Save, Shield, Settings as SettingsIcon, Sparkles } from "lucide-react";
+import { Loader2, Save, Shield, Settings as SettingsIcon, Sparkles, Copy, CheckCircle2, Webhook } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
 interface SettingsData {
@@ -34,6 +34,7 @@ export default function Settings() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [settings, setSettings] = useState<SettingsData>({
     dripsender_enabled: false,
     cloudchat_enabled: false,
@@ -42,6 +43,20 @@ export default function Settings() {
     openai_model: "gpt-3.5-turbo",
     gemini_model: "gemini-pro",
   });
+
+  const webhookUrl = typeof window !== "undefined" 
+    ? `${window.location.origin}/api/webhook/whatsapp`
+    : "";
+
+  const copyWebhookUrl = () => {
+    navigator.clipboard.writeText(webhookUrl);
+    setCopied(true);
+    toast({
+      title: "Copied!",
+      description: "Webhook URL copied to clipboard",
+    });
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useEffect(() => {
     checkAuth();
@@ -175,6 +190,41 @@ export default function Settings() {
             </TabsList>
 
             <TabsContent value="dripsender" className="space-y-4 mt-6">
+              <Card className="glass-card border-accent/30 bg-gradient-to-br from-accent/5 to-primary/5">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Webhook className="h-5 w-5 text-accent" />
+                    <CardTitle className="font-display text-lg">Webhook Configuration</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Copy this webhook URL and configure it in your Dripsender dashboard
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2">
+                    <Input
+                      value={webhookUrl}
+                      readOnly
+                      className="bg-background/70 border-accent/30 font-mono text-sm"
+                    />
+                    <Button
+                      onClick={copyWebhookUrl}
+                      variant="outline"
+                      className="shrink-0 border-accent/30 hover:bg-accent/10"
+                    >
+                      {copied ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    This webhook receives incoming WhatsApp messages from Dripsender
+                  </p>
+                </CardContent>
+              </Card>
+
               <Card className="glass-card border-primary/20">
                 <CardHeader>
                   <CardTitle className="font-display text-xl">Dripsender API Configuration</CardTitle>
@@ -239,6 +289,41 @@ export default function Settings() {
             </TabsContent>
 
             <TabsContent value="cloudchat" className="space-y-4 mt-6">
+              <Card className="glass-card border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <Webhook className="h-5 w-5 text-primary" />
+                    <CardTitle className="font-display text-lg">Webhook Configuration</CardTitle>
+                  </div>
+                  <CardDescription>
+                    Copy this webhook URL and configure it in your Cloudchat dashboard
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2">
+                    <Input
+                      value={webhookUrl}
+                      readOnly
+                      className="bg-background/70 border-primary/30 font-mono text-sm"
+                    />
+                    <Button
+                      onClick={copyWebhookUrl}
+                      variant="outline"
+                      className="shrink-0 border-primary/30 hover:bg-primary/10"
+                    >
+                      {copied ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    This webhook receives incoming WhatsApp messages from Cloudchat
+                  </p>
+                </CardContent>
+              </Card>
+
               <Card className="glass-card border-accent/20">
                 <CardHeader>
                   <CardTitle className="font-display text-xl">Cloudchat API Configuration</CardTitle>
