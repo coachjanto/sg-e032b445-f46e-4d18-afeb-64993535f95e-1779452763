@@ -1,11 +1,11 @@
 ---
 title: Live Chat Interface (WhatsApp Web Clone)
-status: todo
+status: in_progress
 priority: high
 type: feature
-tags: [frontend, chat, realtime]
+tags: [frontend, real-time]
 created_by: agent
-created_at: 2026-05-22T11:46:17Z
+created_at: 2026-05-22T11:51:09Z
 position: 7
 ---
 
