@@ -120,11 +120,12 @@ export default function LiveChatPage() {
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setDevices(data as SenderDevice[]);
+      const typedDevices = data as SenderDevice[];
+      setDevices(typedDevices);
       
       // Generate mock chats for each device
       const mockChats: Record<string, ChatContact[]> = {};
-      data.forEach((device: SenderDevice) => {
+      typedDevices.forEach((device) => {
         mockChats[device.id] = generateMockChats(device.id, 5);
       });
       setChatsByDevice(mockChats);
