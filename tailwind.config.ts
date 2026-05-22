@@ -10,6 +10,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"IBM Plex Mono"', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
+        mono: ['"JetBrains Mono"', 'Consolas', 'Monaco', 'monospace'],
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
