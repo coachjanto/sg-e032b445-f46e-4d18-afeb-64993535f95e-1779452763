@@ -4,7 +4,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardLayout } from "@/components/Layout/DashboardLayout";
 import { useI18n } from "@/hooks/useI18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageSquare, CheckCircle2, Smartphone, XCircle } from "lucide-react";
+import { MessageSquare, CheckCircle2, Smartphone, XCircle, TrendingUp, Zap } from "lucide-react";
 import Link from "next/link";
 
 interface DashboardStats {
@@ -29,7 +29,6 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Fetch devices count
       const { data: devices } = await supabase
         .from("sender_devices")
         .select("id, status")
@@ -37,7 +36,6 @@ export default function DashboardPage() {
 
       const activeDevices = devices?.filter(d => d.status === "connected").length || 0;
 
-      // Fetch message logs for today
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -64,152 +62,157 @@ export default function DashboardPage() {
     fetchStats();
   }, []);
 
-  const statCards = [
-    {
-      title: t("totalMessagesSent"),
-      value: stats.totalMessages,
-      subtitle: t("todayStats"),
-      icon: MessageSquare,
-      color: "text-accent",
-    },
-    {
-      title: t("successRate"),
-      value: `${stats.successRate}%`,
-      subtitle: t("todayStats"),
-      icon: CheckCircle2,
-      color: "text-green-500",
-    },
-    {
-      title: t("activeDevices"),
-      value: stats.activeDevices,
-      subtitle: "Currently connected",
-      icon: Smartphone,
-      color: "text-blue-500",
-    },
-    {
-      title: t("failedMessages"),
-      value: stats.failedMessages,
-      subtitle: t("todayStats"),
-      icon: XCircle,
-      color: "text-red-500",
-    },
-  ];
-
   return (
     <ProtectedRoute>
       <DashboardLayout>
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-mono font-bold tracking-tight">{t("dashboard")}</h1>
-            <p className="text-muted-foreground mt-2">
-              Overview of your WhatsApp messaging operations
-            </p>
+        <div className="space-y-8">
+          <div className="relative">
+            <div className="absolute -top-20 -left-20 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute -top-20 -right-20 w-72 h-72 bg-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+            <div className="relative">
+              <h1 className="text-4xl font-display font-bold tracking-tight bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-200 animate-gradient-shift">
+                {t("dashboard")}
+              </h1>
+              <p className="text-muted-foreground mt-2 text-lg">
+                Overview of your WhatsApp messaging operations
+              </p>
+            </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <Card className="glass-card border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium font-mono">{t("totalMessagesSent")}</CardTitle>
-                <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">{t("totalMessagesSent")}</CardTitle>
+                <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20">
+                  <MessageSquare className="h-5 w-5 text-primary" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold font-mono">{stats.totalMessages.toLocaleString()}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <div className="text-3xl font-display font-bold bg-gradient-to-br from-primary to-accent bg-clip-text text-transparent">
+                  {stats.totalMessages.toLocaleString()}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 mb-3">
                   {t("todayStats")}
                 </p>
-                <Link href="/campaigns" className="text-xs text-accent hover:underline mt-2 inline-block">
-                  View campaigns →
+                <Link href="/campaigns" className="text-xs text-primary hover:text-accent transition-colors inline-flex items-center gap-1 font-medium">
+                  View campaigns <TrendingUp className="h-3 w-3" />
                 </Link>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="glass-card border-accent/20 hover:border-accent/40 transition-all duration-300 hover:shadow-xl hover:shadow-accent/10">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium font-mono">Active Devices</CardTitle>
-                <Smartphone className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Active Devices</CardTitle>
+                <div className="p-2 rounded-lg bg-gradient-to-br from-accent/20 to-primary/20">
+                  <Smartphone className="h-5 w-5 text-accent" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold font-mono">{stats.activeDevices}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <div className="text-3xl font-display font-bold bg-gradient-to-br from-accent to-primary bg-clip-text text-transparent">
+                  {stats.activeDevices}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 mb-3">
                   Currently connected
                 </p>
-                <Link href="/devices" className="text-xs text-accent hover:underline mt-2 inline-block">
-                  Manage devices →
+                <Link href="/devices" className="text-xs text-accent hover:text-primary transition-colors inline-flex items-center gap-1 font-medium">
+                  Manage devices <Zap className="h-3 w-3" />
                 </Link>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="glass-card border-green-500/20 hover:border-green-500/40 transition-all duration-300 hover:shadow-xl hover:shadow-green-500/10">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium font-mono">Success Rate</CardTitle>
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+                <div className="p-2 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20">
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold font-mono">{stats.successRate}%</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <div className="text-3xl font-display font-bold text-green-500">
+                  {stats.successRate}%
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 mb-3">
                   {t("todayStats")}
                 </p>
-                <Link href="/contacts" className="text-xs text-accent hover:underline mt-2 inline-block">
-                  View contacts →
+                <Link href="/contacts" className="text-xs text-green-500 hover:text-green-600 transition-colors inline-flex items-center gap-1 font-medium">
+                  View contacts <TrendingUp className="h-3 w-3" />
                 </Link>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="glass-card border-red-500/20 hover:border-red-500/40 transition-all duration-300 hover:shadow-xl hover:shadow-red-500/10">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium font-mono">{t("failedMessages")}</CardTitle>
-                <XCircle className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">{t("failedMessages")}</CardTitle>
+                <div className="p-2 rounded-lg bg-gradient-to-br from-red-500/20 to-rose-500/20">
+                  <XCircle className="h-5 w-5 text-red-500" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold font-mono">{stats.failedMessages}</div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <div className="text-3xl font-display font-bold text-red-500">
+                  {stats.failedMessages}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
                   {t("todayStats")}
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Quick Actions */}
-          <Card>
+          <Card className="glass-card border-primary/20">
             <CardHeader>
-              <CardTitle className="font-mono">Quick Actions</CardTitle>
+              <CardTitle className="font-display text-xl">Quick Actions</CardTitle>
             </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-3">
+            <CardContent className="grid gap-6 md:grid-cols-3">
               <Link
                 href="/devices"
-                className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg hover:border-accent transition-colors"
+                className="group relative overflow-hidden flex flex-col items-center justify-center p-8 border-2 border-dashed border-primary/30 rounded-xl hover:border-primary transition-all duration-300 hover:shadow-lg hover:shadow-primary/20"
               >
-                <Smartphone className="h-8 w-8 text-accent mb-2" />
-                <span className="font-mono text-sm">{t("addDevice")}</span>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 mb-3">
+                    <Smartphone className="h-8 w-8 text-primary" />
+                  </div>
+                  <span className="font-display text-sm font-semibold">{t("addDevice")}</span>
+                </div>
               </Link>
               <Link
                 href="/contacts"
-                className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg hover:border-accent transition-colors"
+                className="group relative overflow-hidden flex flex-col items-center justify-center p-8 border-2 border-dashed border-accent/30 rounded-xl hover:border-accent transition-all duration-300 hover:shadow-lg hover:shadow-accent/20"
               >
-                <MessageSquare className="h-8 w-8 text-accent mb-2" />
-                <span className="font-mono text-sm">{t("addContact")}</span>
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-accent/20 to-primary/20 mb-3">
+                    <MessageSquare className="h-8 w-8 text-accent" />
+                  </div>
+                  <span className="font-display text-sm font-semibold">{t("addContact")}</span>
+                </div>
               </Link>
               <Link
                 href="/campaigns"
-                className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg hover:border-accent transition-colors"
+                className="group relative overflow-hidden flex flex-col items-center justify-center p-8 border-2 border-dashed border-green-500/30 rounded-xl hover:border-green-500 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20"
               >
-                <CheckCircle2 className="h-8 w-8 text-accent mb-2" />
-                <span className="font-mono text-sm">{t("newCampaign")}</span>
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 mb-3">
+                    <CheckCircle2 className="h-8 w-8 text-green-500" />
+                  </div>
+                  <span className="font-display text-sm font-semibold">{t("newCampaign")}</span>
+                </div>
               </Link>
             </CardContent>
           </Card>
 
-          {/* Recent Activity Placeholder */}
-          <Card>
+          <Card className="glass-card border-accent/20">
             <CardHeader>
-              <CardTitle className="font-mono">Recent Activity</CardTitle>
+              <CardTitle className="font-display text-xl">Recent Activity</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="font-mono">No recent activity</p>
-                <p className="text-sm mt-2">Start by adding a device or creating a campaign</p>
+              <div className="text-center py-16">
+                <div className="inline-flex p-6 rounded-2xl bg-gradient-to-br from-primary/10 via-accent/10 to-transparent mb-4">
+                  <MessageSquare className="h-16 w-16 text-primary/50" />
+                </div>
+                <p className="font-display text-lg font-semibold mb-2">No recent activity</p>
+                <p className="text-sm text-muted-foreground">Start by adding a device or creating a campaign</p>
               </div>
             </CardContent>
           </Card>
