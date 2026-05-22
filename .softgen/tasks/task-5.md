@@ -1,6 +1,6 @@
 ---
 title: Sender Devices Management
-status: in_progress
+status: done
 priority: high
 type: feature
 tags: [frontend, backend]
