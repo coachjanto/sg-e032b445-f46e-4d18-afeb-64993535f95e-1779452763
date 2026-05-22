@@ -47,6 +47,10 @@ export default function Settings() {
   const webhookUrl = typeof window !== "undefined" 
     ? `${window.location.origin}/api/webhook/whatsapp`
     : "";
+  
+  const cloudchatWebhookUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/api/webhook/cloudchat`
+    : "";
 
   const copyWebhookUrl = () => {
     navigator.clipboard.writeText(webhookUrl);
@@ -54,6 +58,16 @@ export default function Settings() {
     toast({
       title: "Copied!",
       description: "Webhook URL copied to clipboard",
+    });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyCloudchatWebhookUrl = () => {
+    navigator.clipboard.writeText(cloudchatWebhookUrl);
+    setCopied(true);
+    toast({
+      title: "Copied!",
+      description: "CloudChat webhook URL copied to clipboard",
     });
     setTimeout(() => setCopied(false), 2000);
   };
@@ -296,18 +310,18 @@ export default function Settings() {
                     <CardTitle className="font-display text-lg">Webhook Configuration</CardTitle>
                   </div>
                   <CardDescription>
-                    Copy this webhook URL and configure it in your Cloudchat dashboard
+                    Copy this webhook URL and paste it in your CloudChat Developer App settings
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <div className="flex gap-2">
                     <Input
-                      value={webhookUrl}
+                      value={cloudchatWebhookUrl}
                       readOnly
                       className="bg-background/70 border-primary/30 font-mono text-sm"
                     />
                     <Button
-                      onClick={copyWebhookUrl}
+                      onClick={copyCloudchatWebhookUrl}
                       variant="outline"
                       className="shrink-0 border-primary/30 hover:bg-primary/10"
                     >
@@ -318,17 +332,26 @@ export default function Settings() {
                       )}
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    This webhook receives incoming WhatsApp messages from Cloudchat
-                  </p>
+                  <div className="glass-card p-3 rounded-lg border border-primary/20 bg-primary/5">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Setup Steps:</strong>
+                    </p>
+                    <ol className="text-xs text-muted-foreground mt-2 space-y-1 list-decimal list-inside">
+                      <li>Go to CloudChat Developer App settings</li>
+                      <li>Paste this webhook URL in "WEBHOOK URL" field</li>
+                      <li>Click "Ping Test" to verify the connection</li>
+                      <li>Link your WhatsApp channel to the app</li>
+                      <li>Enable the app status toggle</li>
+                    </ol>
+                  </div>
                 </CardContent>
               </Card>
 
               <Card className="glass-card border-accent/20">
                 <CardHeader>
-                  <CardTitle className="font-display text-xl">Cloudchat API Configuration</CardTitle>
+                  <CardTitle className="font-display text-xl">CloudChat API Configuration</CardTitle>
                   <CardDescription>
-                    Configure your Cloudchat API for live chat integration
+                    Configure your CloudChat Secret Key from Developer App settings
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
