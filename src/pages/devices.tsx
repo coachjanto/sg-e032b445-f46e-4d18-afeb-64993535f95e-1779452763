@@ -29,6 +29,7 @@ import {
   Wifi,
   WifiOff,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -54,7 +55,6 @@ export default function DevicesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("qr");
 
-  // Form states for different connection types
   const [qrLabel, setQrLabel] = useState("");
   const [dsLabel, setDsLabel] = useState("");
   const [dsApiKey, setDsApiKey] = useState("");
@@ -148,7 +148,6 @@ export default function DevicesPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // In production, encrypt these credentials
     const credentials = JSON.stringify({
       apiKey: dsApiKey,
       baseUrl: dsBaseUrl,
@@ -173,7 +172,7 @@ export default function DevicesPage() {
 
     toast({
       title: "Success",
-      description: "DripSender device created. Test connection to verify.",
+      description: "DripSender device created successfully",
     });
     setDsLabel("");
     setDsApiKey("");
@@ -220,7 +219,7 @@ export default function DevicesPage() {
 
     toast({
       title: "Success",
-      description: "CloudChat device created. Test connection to verify.",
+      description: "CloudChat device created successfully",
     });
     setCcLabel("");
     setCcApiKey("");
@@ -269,7 +268,7 @@ export default function DevicesPage() {
 
     toast({
       title: "Success",
-      description: "Meta WhatsApp Business API device created.",
+      description: "Meta WhatsApp Business API device created",
     });
     setMetaLabel("");
     setMetaPhoneId("");
@@ -305,11 +304,11 @@ export default function DevicesPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "connected":
-        return <Badge className="bg-green-500 hover:bg-green-600"><Wifi className="h-3 w-3 mr-1" />Connected</Badge>;
+        return <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 hover:opacity-90"><Wifi className="h-3 w-3 mr-1" />Connected</Badge>;
       case "connecting":
-        return <Badge variant="secondary"><RefreshCw className="h-3 w-3 mr-1 animate-spin" />Connecting</Badge>;
+        return <Badge variant="secondary" className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20"><RefreshCw className="h-3 w-3 mr-1 animate-spin" />Connecting</Badge>;
       case "qr_ready":
-        return <Badge variant="outline"><QrCode className="h-3 w-3 mr-1" />QR Ready</Badge>;
+        return <Badge variant="outline" className="border-accent"><QrCode className="h-3 w-3 mr-1" />QR Ready</Badge>;
       case "expired":
         return <Badge variant="destructive"><WifiOff className="h-3 w-3 mr-1" />Expired</Badge>;
       default:
@@ -319,10 +318,10 @@ export default function DevicesPage() {
 
   const getTypeBadge = (type: string) => {
     const badges = {
-      qr: <Badge variant="outline" className="font-mono">QR</Badge>,
-      dripsender: <Badge variant="outline" className="font-mono">DS</Badge>,
-      cloudchat: <Badge variant="outline" className="font-mono">CC</Badge>,
-      meta: <Badge variant="outline" className="font-mono">META</Badge>,
+      qr: <Badge variant="outline" className="font-display border-primary/30">QR</Badge>,
+      dripsender: <Badge variant="outline" className="font-display border-accent/30">DS</Badge>,
+      cloudchat: <Badge variant="outline" className="font-display border-primary/30">CC</Badge>,
+      meta: <Badge variant="outline" className="font-display border-accent/30">META</Badge>,
     };
     return badges[type as keyof typeof badges] || <Badge variant="outline">{type}</Badge>;
   };
@@ -333,35 +332,35 @@ export default function DevicesPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-mono font-bold tracking-tight">{t("devices")}</h1>
-              <p className="text-muted-foreground mt-2">
+              <h1 className="text-3xl font-display font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">{t("devices")}</h1>
+              <p className="text-muted-foreground mt-2 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-accent" />
                 Manage your WhatsApp sender devices and connections
               </p>
             </div>
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="font-mono">
+                <Button className="font-display bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/30">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Device
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-card border-primary/30">
                 <DialogHeader>
-                  <DialogTitle className="font-mono">Add WhatsApp Sender Device</DialogTitle>
+                  <DialogTitle className="font-display text-xl">Add WhatsApp Sender Device</DialogTitle>
                   <DialogDescription>
                     Choose a connection method and configure your device
                   </DialogDescription>
                 </DialogHeader>
 
                 <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="qr" className="font-mono">QR Code</TabsTrigger>
-                    <TabsTrigger value="dripsender" className="font-mono">DripSender</TabsTrigger>
-                    <TabsTrigger value="cloudchat" className="font-mono">CloudChat</TabsTrigger>
-                    <TabsTrigger value="meta" className="font-mono">Meta API</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-4 bg-muted/50">
+                    <TabsTrigger value="qr" className="font-display">QR Code</TabsTrigger>
+                    <TabsTrigger value="dripsender" className="font-display">DripSender</TabsTrigger>
+                    <TabsTrigger value="cloudchat" className="font-display">CloudChat</TabsTrigger>
+                    <TabsTrigger value="meta" className="font-display">Meta API</TabsTrigger>
                   </TabsList>
 
-                  {/* QR Code Tab */}
                   <TabsContent value="qr" className="space-y-4 mt-4">
                     <div className="space-y-2">
                       <Label htmlFor="qr-label">Device Label</Label>
@@ -370,22 +369,19 @@ export default function DevicesPage() {
                         placeholder="e.g., My Personal WhatsApp"
                         value={qrLabel}
                         onChange={(e) => setQrLabel(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
-                      <p className="text-xs text-muted-foreground">
-                        A friendly name to identify this device
+                    </div>
+                    <div className="glass-card p-4 rounded-lg border border-primary/20">
+                      <p className="text-sm">
+                        <strong className="text-primary">How it works:</strong> After creating the device, scan a QR code with your WhatsApp mobile app to connect.
                       </p>
                     </div>
-                    <div className="bg-muted p-4 rounded-lg">
-                      <p className="text-sm font-mono">
-                        <strong>How it works:</strong> After creating the device, you'll scan a QR code with your WhatsApp mobile app to connect. Uses Baileys library for multi-device connection.
-                      </p>
-                    </div>
-                    <Button onClick={handleAddQrDevice} className="w-full font-mono">
+                    <Button onClick={handleAddQrDevice} className="w-full font-display bg-gradient-to-r from-primary to-accent hover:opacity-90">
                       Create QR Device
                     </Button>
                   </TabsContent>
 
-                  {/* DripSender Tab */}
                   <TabsContent value="dripsender" className="space-y-4 mt-4">
                     <div className="space-y-2">
                       <Label htmlFor="ds-label">Device Label</Label>
@@ -394,6 +390,7 @@ export default function DevicesPage() {
                         placeholder="e.g., DripSender Account 1"
                         value={dsLabel}
                         onChange={(e) => setDsLabel(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
@@ -404,6 +401,7 @@ export default function DevicesPage() {
                         placeholder="Your DripSender API Key"
                         value={dsApiKey}
                         onChange={(e) => setDsApiKey(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
@@ -413,14 +411,14 @@ export default function DevicesPage() {
                         placeholder="https://api.dripsender.com"
                         value={dsBaseUrl}
                         onChange={(e) => setDsBaseUrl(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
-                    <Button onClick={handleAddDripSenderDevice} className="w-full font-mono">
+                    <Button onClick={handleAddDripSenderDevice} className="w-full font-display bg-gradient-to-r from-primary to-accent hover:opacity-90">
                       Add DripSender Device
                     </Button>
                   </TabsContent>
 
-                  {/* CloudChat Tab */}
                   <TabsContent value="cloudchat" className="space-y-4 mt-4">
                     <div className="space-y-2">
                       <Label htmlFor="cc-label">Device Label</Label>
@@ -429,6 +427,7 @@ export default function DevicesPage() {
                         placeholder="e.g., CloudChat Instance 1"
                         value={ccLabel}
                         onChange={(e) => setCcLabel(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
@@ -439,6 +438,7 @@ export default function DevicesPage() {
                         placeholder="Your CloudChat API Key"
                         value={ccApiKey}
                         onChange={(e) => setCcApiKey(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
@@ -448,6 +448,7 @@ export default function DevicesPage() {
                         placeholder="your-instance-id"
                         value={ccInstanceId}
                         onChange={(e) => setCcInstanceId(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
@@ -457,14 +458,14 @@ export default function DevicesPage() {
                         placeholder="https://yourdomain.com/webhook"
                         value={ccWebhookUrl}
                         onChange={(e) => setCcWebhookUrl(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
-                    <Button onClick={handleAddCloudChatDevice} className="w-full font-mono">
+                    <Button onClick={handleAddCloudChatDevice} className="w-full font-display bg-gradient-to-r from-primary to-accent hover:opacity-90">
                       Add CloudChat Device
                     </Button>
                   </TabsContent>
 
-                  {/* Meta API Tab */}
                   <TabsContent value="meta" className="space-y-4 mt-4">
                     <div className="space-y-2">
                       <Label htmlFor="meta-label">Device Label</Label>
@@ -473,6 +474,7 @@ export default function DevicesPage() {
                         placeholder="e.g., Meta Business Account"
                         value={metaLabel}
                         onChange={(e) => setMetaLabel(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
@@ -482,6 +484,7 @@ export default function DevicesPage() {
                         placeholder="123456789012345"
                         value={metaPhoneId}
                         onChange={(e) => setMetaPhoneId(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
@@ -492,15 +495,17 @@ export default function DevicesPage() {
                         placeholder="Your WhatsApp Business API Access Token"
                         value={metaAccessToken}
                         onChange={(e) => setMetaAccessToken(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="meta-wabaid">WhatsApp Business Account ID (Optional)</Label>
+                      <Label htmlFor="meta-wabaid">WABA ID (Optional)</Label>
                       <Input
                         id="meta-wabaid"
                         placeholder="123456789012345"
                         value={metaWabaId}
                         onChange={(e) => setMetaWabaId(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
                     <div className="space-y-2">
@@ -510,9 +515,10 @@ export default function DevicesPage() {
                         placeholder="123456789012345"
                         value={metaAppId}
                         onChange={(e) => setMetaAppId(e.target.value)}
+                        className="bg-background/50 border-primary/20 focus:border-primary"
                       />
                     </div>
-                    <Button onClick={handleAddMetaDevice} className="w-full font-mono">
+                    <Button onClick={handleAddMetaDevice} className="w-full font-display bg-gradient-to-r from-primary to-accent hover:opacity-90">
                       Add Meta API Device
                     </Button>
                   </TabsContent>
@@ -521,19 +527,18 @@ export default function DevicesPage() {
             </Dialog>
           </div>
 
-          {/* Devices List */}
           {loading ? (
-            <Card>
+            <Card className="glass-card border-primary/20">
               <CardContent className="py-12">
-                <div className="text-center text-muted-foreground font-mono">Loading devices...</div>
+                <div className="text-center text-muted-foreground">Loading devices...</div>
               </CardContent>
             </Card>
           ) : devices.length === 0 ? (
-            <Card>
+            <Card className="glass-card border-primary/20">
               <CardContent className="py-12">
                 <div className="text-center">
-                  <Smartphone className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <p className="font-mono text-muted-foreground">No devices yet</p>
+                  <Smartphone className="h-12 w-12 mx-auto mb-4 text-primary/50" />
+                  <p className="font-display text-muted-foreground">No devices yet</p>
                   <p className="text-sm text-muted-foreground mt-2">
                     Add your first WhatsApp sender device to get started
                   </p>
@@ -543,11 +548,11 @@ export default function DevicesPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {devices.map((device) => (
-                <Card key={device.id}>
+                <Card key={device.id} className="glass-card border-primary/20 hover:border-accent/40 transition-all">
                   <CardHeader>
                     <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="font-mono text-lg">{device.label}</CardTitle>
+                      <div className="space-y-2">
+                        <CardTitle className="font-display text-lg">{device.label}</CardTitle>
                         <CardDescription className="flex items-center gap-2">
                           {getTypeBadge(device.type)}
                           {getStatusBadge(device.status)}
@@ -559,7 +564,7 @@ export default function DevicesPage() {
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="glass-card border-primary/20">
                           <DropdownMenuItem>
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Label
@@ -580,29 +585,29 @@ export default function DevicesPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-2 text-sm">
+                    <div className="space-y-3 text-sm">
                       {device.phone_number && (
                         <div className="flex items-center justify-between">
                           <span className="text-muted-foreground">Phone:</span>
-                          <span className="font-mono">{device.phone_number}</span>
+                          <span className="font-display">{device.phone_number}</span>
                         </div>
                       )}
                       {device.last_active && (
                         <div className="flex items-center justify-between">
                           <span className="text-muted-foreground">Last Active:</span>
-                          <span className="font-mono text-xs">
+                          <span className="text-xs">
                             {new Date(device.last_active).toLocaleString()}
                           </span>
                         </div>
                       )}
                       {device.type === "qr" && device.status === "disconnected" && (
-                        <Button className="w-full mt-4" variant="outline">
+                        <Button className="w-full mt-4 bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20" variant="outline">
                           <QrCode className="h-4 w-4 mr-2" />
                           Connect via QR
                         </Button>
                       )}
                       {(device.type === "dripsender" || device.type === "cloudchat" || device.type === "meta") && device.status === "disconnected" && (
-                        <Button className="w-full mt-4" variant="outline">
+                        <Button className="w-full mt-4 bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20" variant="outline">
                           <Wifi className="h-4 w-4 mr-2" />
                           Test Connection
                         </Button>
