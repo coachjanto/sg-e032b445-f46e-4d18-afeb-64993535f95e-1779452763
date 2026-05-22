@@ -20,10 +20,10 @@ import {
   ChevronRight,
   Phone,
   Video,
-  Info,
   ArrowDown,
   Menu,
   X,
+  Sparkles,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -69,8 +69,8 @@ const CONNECTION_TYPE_LABELS = {
 };
 
 const STATUS_COLORS = {
-  connected: "bg-green-500",
-  connecting: "bg-yellow-500",
+  connected: "bg-emerald-500",
+  connecting: "bg-amber-500",
   disconnected: "bg-red-500",
   qr_ready: "bg-blue-500",
   expired: "bg-gray-500",
@@ -90,7 +90,6 @@ export default function LiveChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
 
-  // Mock chat data per device
   const [chatsByDevice, setChatsByDevice] = useState<Record<string, ChatContact[]>>({});
 
   useEffect(() => {
@@ -123,7 +122,6 @@ export default function LiveChatPage() {
       const typedDevices = data as SenderDevice[];
       setDevices(typedDevices);
       
-      // Generate mock chats for each device
       const mockChats: Record<string, ChatContact[]> = {};
       typedDevices.forEach((device) => {
         mockChats[device.id] = generateMockChats(device.id, 5);
@@ -146,7 +144,6 @@ export default function LiveChatPage() {
   };
 
   const fetchMessages = async (chatId: string) => {
-    // Mock messages
     const mockMessages: Message[] = [
       {
         id: "1",
@@ -222,7 +219,6 @@ export default function LiveChatPage() {
     setMessages([...messages, newMessage]);
     setMessageInput("");
 
-    // Simulate delivery status updates
     setTimeout(() => {
       setMessages(prev => prev.map(m => 
         m.id === newMessage.id ? { ...m, status: "delivered" } : m
@@ -280,7 +276,7 @@ export default function LiveChatPage() {
   const getStatusIcon = (status?: string) => {
     if (status === "sent") return "✓";
     if (status === "delivered") return "✓✓";
-    if (status === "read") return <span className="text-blue-500">✓✓</span>;
+    if (status === "read") return <span className="text-accent">✓✓</span>;
     if (status === "failed") return "⚠";
     return "";
   };
@@ -288,8 +284,7 @@ export default function LiveChatPage() {
   return (
     <ProtectedRoute>
       <div className="h-screen flex flex-col bg-background">
-        {/* Topbar */}
-        <div className="h-16 border-b flex items-center justify-between px-4 lg:px-6">
+        <div className="h-16 border-b border-primary/20 flex items-center justify-between px-4 lg:px-6 bg-gradient-to-r from-primary/5 to-accent/5 backdrop-blur-sm">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -299,20 +294,20 @@ export default function LiveChatPage() {
             >
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            <h1 className="text-xl font-mono font-bold">Live Chat</h1>
+            <h1 className="text-xl font-display font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Live Chat</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="font-mono">
+            <Badge className="font-display bg-gradient-to-r from-emerald-500/20 to-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+              <Sparkles className="h-3 w-3 mr-1" />
               {devices.length} Device{devices.length !== 1 ? "s" : ""} Connected
             </Badge>
           </div>
         </div>
 
         <div className="flex-1 flex overflow-hidden">
-          {/* Left Panel */}
           <div
             className={cn(
-              "border-r bg-muted/30 flex flex-col transition-all duration-200",
+              "border-r border-primary/20 glass-card flex flex-col transition-all duration-200",
               sidebarOpen ? "block" : "hidden lg:block",
               "lg:relative absolute inset-y-0 left-0 z-50 lg:z-0"
             )}
@@ -322,7 +317,7 @@ export default function LiveChatPage() {
               <div className="flex-1 flex items-center justify-center p-6 text-center">
                 <div>
                   <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <p className="font-mono text-muted-foreground">No connected devices</p>
+                  <p className="font-display text-muted-foreground">No connected devices</p>
                   <p className="text-sm text-muted-foreground mt-2">
                     Connect a device to start chatting
                   </p>
@@ -335,10 +330,9 @@ export default function LiveChatPage() {
                   const deviceChats = chatsByDevice[device.id] || [];
 
                   return (
-                    <div key={device.id} className="border-b">
-                      {/* Device Section Header */}
+                    <div key={device.id} className="border-b border-primary/20">
                       <div
-                        className="flex items-center justify-between p-3 bg-background cursor-pointer hover:bg-muted/50"
+                        className="flex items-center justify-between p-3 bg-gradient-to-r from-primary/5 to-accent/5 cursor-pointer hover:from-primary/10 hover:to-accent/10 transition-colors"
                         onClick={() => toggleDeviceCollapse(device.id)}
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -347,11 +341,11 @@ export default function LiveChatPage() {
                           ) : (
                             <ChevronDown className="h-4 w-4 flex-shrink-0" />
                           )}
-                          <span className="font-mono text-sm truncate">
+                          <span className="font-display text-sm truncate">
                             {device.phone_number || device.label}
                           </span>
-                          <div className={cn("w-2 h-2 rounded-full flex-shrink-0", STATUS_COLORS[device.status])} />
-                          <Badge variant="outline" className="font-mono text-xs flex-shrink-0">
+                          <div className={cn("w-2 h-2 rounded-full flex-shrink-0 shadow-lg", STATUS_COLORS[device.status])} />
+                          <Badge variant="outline" className="font-display text-xs flex-shrink-0 border-accent/30">
                             {CONNECTION_TYPE_LABELS[device.type]}
                           </Badge>
                         </div>
@@ -361,7 +355,7 @@ export default function LiveChatPage() {
                               <MoreVertical className="h-3 w-3" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="glass-card border-primary/20">
                             <DropdownMenuItem>Settings</DropdownMenuItem>
                             <DropdownMenuItem>Disconnect</DropdownMenuItem>
                             <DropdownMenuItem>Hide Device</DropdownMenuItem>
@@ -369,7 +363,6 @@ export default function LiveChatPage() {
                         </DropdownMenu>
                       </div>
 
-                      {/* Chat List for this Device */}
                       {!isCollapsed && (
                         <div>
                           <div className="p-2">
@@ -377,7 +370,7 @@ export default function LiveChatPage() {
                               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <Input
                                 placeholder="Search chats..."
-                                className="pl-9 h-9 font-mono text-sm"
+                                className="pl-9 h-9 font-display text-sm bg-background/50 border-accent/20"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                               />
@@ -393,23 +386,23 @@ export default function LiveChatPage() {
                                 <div
                                   key={chat.id}
                                   className={cn(
-                                    "flex items-center gap-3 p-3 cursor-pointer hover:bg-muted/50 transition-colors",
-                                    selectedChat?.id === chat.id && "bg-muted"
+                                    "flex items-center gap-3 p-3 cursor-pointer hover:bg-gradient-to-r hover:from-primary/5 hover:to-accent/5 transition-colors",
+                                    selectedChat?.id === chat.id && "bg-gradient-to-r from-primary/10 to-accent/10"
                                   )}
                                   onClick={() => {
                                     setSelectedChat(chat);
                                     setSidebarOpen(false);
                                   }}
                                 >
-                                  <Avatar className="h-10 w-10 flex-shrink-0">
+                                  <Avatar className="h-10 w-10 flex-shrink-0 ring-2 ring-primary/20">
                                     <AvatarImage src={chat.avatar} />
-                                    <AvatarFallback className="font-mono text-xs">
+                                    <AvatarFallback className="font-display text-xs bg-gradient-to-br from-primary/20 to-accent/20">
                                       {chat.name.split(" ").map(n => n[0]).join("").toUpperCase()}
                                     </AvatarFallback>
                                   </Avatar>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between gap-2">
-                                      <span className="font-mono text-sm font-medium truncate">
+                                      <span className="font-display text-sm font-medium truncate">
                                         {chat.name}
                                       </span>
                                       <span className="text-xs text-muted-foreground flex-shrink-0">
@@ -421,7 +414,7 @@ export default function LiveChatPage() {
                                         {chat.lastMessage}
                                       </p>
                                       {chat.unreadCount > 0 && (
-                                        <Badge variant="default" className="h-5 px-1.5 text-xs font-mono">
+                                        <Badge className="h-5 px-1.5 text-xs font-display bg-gradient-to-r from-primary to-accent">
                                           {chat.unreadCount}
                                         </Badge>
                                       )}
@@ -438,20 +431,18 @@ export default function LiveChatPage() {
               </ScrollArea>
             )}
 
-            {/* Resize Handle */}
             <div
-              className="absolute top-0 right-0 bottom-0 w-1 hover:w-2 cursor-col-resize bg-border hover:bg-accent transition-all"
+              className="absolute top-0 right-0 bottom-0 w-1 hover:w-2 cursor-col-resize bg-primary/20 hover:bg-accent/40 transition-all"
               onMouseDown={startResize}
             />
           </div>
 
-          {/* Right Panel - Chat Window */}
           <div className="flex-1 flex flex-col bg-background">
             {!selectedChat ? (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
                   <MessageCircle className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <p className="font-mono text-lg text-muted-foreground">Select a chat to start messaging</p>
+                  <p className="font-display text-lg text-muted-foreground">Select a chat to start messaging</p>
                   <p className="text-sm text-muted-foreground mt-2">
                     Choose a conversation from the left panel
                   </p>
@@ -459,8 +450,7 @@ export default function LiveChatPage() {
               </div>
             ) : (
               <>
-                {/* Chat Header */}
-                <div className="h-16 border-b flex items-center justify-between px-4 lg:px-6 bg-muted/30">
+                <div className="h-16 border-b border-primary/20 flex items-center justify-between px-4 lg:px-6 bg-gradient-to-r from-primary/5 to-accent/5 backdrop-blur-sm">
                   <div className="flex items-center gap-3">
                     <Button
                       variant="ghost"
@@ -473,17 +463,17 @@ export default function LiveChatPage() {
                     >
                       <ChevronRight className="h-5 w-5" />
                     </Button>
-                    <Avatar className="h-10 w-10">
+                    <Avatar className="h-10 w-10 ring-2 ring-primary/20">
                       <AvatarImage src={selectedChat.avatar} />
-                      <AvatarFallback className="font-mono text-xs">
+                      <AvatarFallback className="font-display text-xs bg-gradient-to-br from-primary/20 to-accent/20">
                         {selectedChat.name.split(" ").map(n => n[0]).join("").toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-mono font-medium">{selectedChat.name}</p>
+                      <p className="font-display font-medium">{selectedChat.name}</p>
                       <p className="text-xs text-muted-foreground">{selectedChat.phone}</p>
                     </div>
-                    <Badge variant="outline" className="font-mono text-xs">
+                    <Badge variant="outline" className="font-display text-xs border-accent/30">
                       via {devices.find(d => d.id === selectedChat.deviceId)?.phone_number}
                     </Badge>
                   </div>
@@ -503,7 +493,7 @@ export default function LiveChatPage() {
                           <MoreVertical className="h-5 w-5" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="glass-card border-primary/20">
                         <DropdownMenuItem>Contact Info</DropdownMenuItem>
                         <DropdownMenuItem>Mute Notifications</DropdownMenuItem>
                         <DropdownMenuItem>Clear Chat</DropdownMenuItem>
@@ -513,17 +503,15 @@ export default function LiveChatPage() {
                   </div>
                 </div>
 
-                {/* Messages Area */}
                 <ScrollArea
                   className="flex-1 p-4 lg:p-6"
                   onScroll={handleScroll}
                 >
                   <div className="space-y-4 max-w-4xl mx-auto">
-                    {/* Date Separator */}
                     <div className="flex items-center gap-4 my-6">
-                      <Separator className="flex-1" />
-                      <span className="text-xs text-muted-foreground font-mono">Today</span>
-                      <Separator className="flex-1" />
+                      <Separator className="flex-1 bg-primary/20" />
+                      <span className="text-xs text-muted-foreground font-display">Today</span>
+                      <Separator className="flex-1 bg-primary/20" />
                     </div>
 
                     {messages.map((message) => (
@@ -536,15 +524,15 @@ export default function LiveChatPage() {
                       >
                         <div
                           className={cn(
-                            "max-w-[70%] rounded-lg px-4 py-2",
+                            "max-w-[70%] rounded-lg px-4 py-2 backdrop-blur-sm",
                             message.direction === "out"
-                              ? "bg-accent text-accent-foreground"
-                              : "bg-muted"
+                              ? "bg-gradient-to-r from-primary/90 to-accent/90 text-primary-foreground shadow-lg shadow-primary/20"
+                              : "glass-card border-primary/20"
                           )}
                         >
                           <p className="text-sm">{message.content}</p>
                           <div className="flex items-center justify-end gap-1 mt-1">
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs opacity-70">
                               {formatTime(message.timestamp)}
                             </span>
                             {message.direction === "out" && (
@@ -558,19 +546,17 @@ export default function LiveChatPage() {
                   </div>
                 </ScrollArea>
 
-                {/* Scroll to Bottom Button */}
                 {showScrollButton && (
                   <Button
                     size="icon"
-                    className="absolute bottom-24 right-8 rounded-full shadow-lg"
+                    className="absolute bottom-24 right-8 rounded-full shadow-lg bg-gradient-to-r from-primary to-accent"
                     onClick={scrollToBottom}
                   >
                     <ArrowDown className="h-5 w-5" />
                   </Button>
                 )}
 
-                {/* Input Bar */}
-                <div className="border-t p-4 bg-muted/30">
+                <div className="border-t border-primary/20 p-4 bg-gradient-to-r from-primary/5 to-accent/5 backdrop-blur-sm">
                   <div className="flex items-center gap-2 max-w-4xl mx-auto">
                     <Button variant="ghost" size="icon">
                       <Smile className="h-5 w-5" />
@@ -583,10 +569,10 @@ export default function LiveChatPage() {
                       value={messageInput}
                       onChange={(e) => setMessageInput(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                      className="flex-1 font-mono"
+                      className="flex-1 font-display bg-background/50 border-primary/20"
                     />
                     {messageInput.trim() ? (
-                      <Button onClick={handleSendMessage}>
+                      <Button onClick={handleSendMessage} className="bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/30">
                         <Send className="h-5 w-5" />
                       </Button>
                     ) : (

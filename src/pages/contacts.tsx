@@ -28,6 +28,7 @@ import {
   Edit,
   Tag,
   Folder,
+  Sparkles,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -79,13 +80,11 @@ export default function ContactsPage() {
   const [groupDialogOpen, setGroupDialogOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("single");
   
-  // Search and filter states
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string>("all");
   const [selectedTag, setSelectedTag] = useState<string>("all");
   const [pageSize, setPageSize] = useState(25);
   
-  // Form states
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [tagInput, setTagInput] = useState("");
@@ -93,7 +92,6 @@ export default function ContactsPage() {
   const [groupId, setGroupId] = useState<string>("");
   const [newGroupName, setNewGroupName] = useState("");
   
-  // CSV Import states
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvPreview, setCsvPreview] = useState<string[][]>([]);
 
@@ -380,41 +378,43 @@ export default function ContactsPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-mono font-bold tracking-tight">{t("contacts")}</h1>
-              <p className="text-muted-foreground mt-2">
+              <h1 className="text-3xl font-display font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">{t("contacts")}</h1>
+              <p className="text-muted-foreground mt-2 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-accent" />
                 Manage your contact list, groups, and tags
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleExportCsv} className="font-mono">
+              <Button variant="outline" onClick={handleExportCsv} className="font-display border-primary/20 hover:border-primary/40">
                 <Download className="h-4 w-4 mr-2" />
                 Export CSV
               </Button>
               <Dialog open={groupDialogOpen} onOpenChange={setGroupDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="font-mono">
+                  <Button variant="outline" className="font-display border-accent/20 hover:border-accent/40">
                     <Folder className="h-4 w-4 mr-2" />
                     New Group
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="glass-card border-accent/20">
                   <DialogHeader>
-                    <DialogTitle className="font-mono">Create Contact Group</DialogTitle>
+                    <DialogTitle className="font-display">Create Contact Group</DialogTitle>
                     <DialogDescription>
                       Organize contacts into groups for easier management
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="group-name">Group Name</Label>
+                      <Label htmlFor="group-name" className="font-display">Group Name</Label>
                       <Input
                         id="group-name"
                         placeholder="e.g., VIP Customers"
                         value={newGroupName}
                         onChange={(e) => setNewGroupName(e.target.value)}
+                        className="bg-background/50 border-accent/20"
                       />
                     </div>
-                    <Button onClick={handleAddGroup} className="w-full font-mono">
+                    <Button onClick={handleAddGroup} className="w-full font-display bg-gradient-to-r from-accent to-primary hover:opacity-90">
                       Create Group
                     </Button>
                   </div>
@@ -422,51 +422,53 @@ export default function ContactsPage() {
               </Dialog>
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
-                  <Button className="font-mono">
+                  <Button className="font-display bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/30">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Contact
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="glass-card border-primary/20 max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle className="font-mono">Add Contact</DialogTitle>
+                    <DialogTitle className="font-display">Add Contact</DialogTitle>
                     <DialogDescription>
                       Add contacts individually or import from CSV
                     </DialogDescription>
                   </DialogHeader>
 
                   <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="single" className="font-mono">Single Contact</TabsTrigger>
-                      <TabsTrigger value="import" className="font-mono">CSV Import</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+                      <TabsTrigger value="single" className="font-display">Single Contact</TabsTrigger>
+                      <TabsTrigger value="import" className="font-display">CSV Import</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="single" className="space-y-4 mt-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="name" className="font-display">Name</Label>
                         <Input
                           id="name"
                           placeholder="Contact name"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
+                          className="bg-background/50 border-primary/20"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number</Label>
+                        <Label htmlFor="phone" className="font-display">Phone Number</Label>
                         <Input
                           id="phone"
                           placeholder="+62812XXXXXXXX"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
+                          className="bg-background/50 border-primary/20"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="group">Group (Optional)</Label>
+                        <Label htmlFor="group" className="font-display">Group (Optional)</Label>
                         <Select value={groupId} onValueChange={setGroupId}>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-background/50 border-primary/20">
                             <SelectValue placeholder="Select a group" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="glass-card border-primary/20">
                             <SelectItem value="">No Group</SelectItem>
                             {groups.map(group => (
                               <SelectItem key={group.id} value={group.id}>
@@ -477,7 +479,7 @@ export default function ContactsPage() {
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="tags">Tags (Optional)</Label>
+                        <Label htmlFor="tags" className="font-display">Tags (Optional)</Label>
                         <div className="flex gap-2">
                           <Input
                             id="tags"
@@ -485,49 +487,51 @@ export default function ContactsPage() {
                             value={tagInput}
                             onChange={(e) => setTagInput(e.target.value)}
                             onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
+                            className="bg-background/50 border-primary/20"
                           />
-                          <Button type="button" onClick={handleAddTag} variant="outline">
+                          <Button type="button" onClick={handleAddTag} variant="outline" className="border-accent/20">
                             <Tag className="h-4 w-4" />
                           </Button>
                         </div>
                         {contactTags.length > 0 && (
                           <div className="flex flex-wrap gap-2 mt-2">
                             {contactTags.map(tag => (
-                              <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => handleRemoveTag(tag)}>
+                              <Badge key={tag} className="cursor-pointer bg-gradient-to-r from-accent/80 to-primary/80" onClick={() => handleRemoveTag(tag)}>
                                 {tag} ×
                               </Badge>
                             ))}
                           </div>
                         )}
                       </div>
-                      <Button onClick={handleAddContact} className="w-full font-mono">
+                      <Button onClick={handleAddContact} className="w-full font-display bg-gradient-to-r from-primary to-accent hover:opacity-90">
                         Add Contact
                       </Button>
                     </TabsContent>
 
                     <TabsContent value="import" className="space-y-4 mt-4">
                       <div className="space-y-2">
-                        <Label htmlFor="csv-file">CSV File</Label>
+                        <Label htmlFor="csv-file" className="font-display">CSV File</Label>
                         <Input
                           id="csv-file"
                           type="file"
                           accept=".csv"
                           onChange={handleCsvFileChange}
+                          className="bg-background/50 border-primary/20"
                         />
                         <p className="text-xs text-muted-foreground">
                           CSV format: Name, Phone, Tags (semicolon-separated)
                         </p>
                       </div>
                       {csvPreview.length > 0 && (
-                        <div className="border rounded-lg p-4">
-                          <p className="text-sm font-mono mb-2">Preview (first 5 rows):</p>
+                        <div className="glass-card border-accent/20 p-4">
+                          <p className="text-sm font-display mb-2">Preview (first 5 rows):</p>
                           <div className="overflow-x-auto">
                             <table className="w-full text-xs">
                               <tbody>
                                 {csvPreview.map((row, i) => (
                                   <tr key={i} className={i === 0 ? "font-semibold" : ""}>
                                     {row.map((cell, j) => (
-                                      <td key={j} className="border px-2 py-1">
+                                      <td key={j} className="border border-primary/20 px-2 py-1">
                                         {cell}
                                       </td>
                                     ))}
@@ -538,7 +542,7 @@ export default function ContactsPage() {
                           </div>
                         </div>
                       )}
-                      <Button onClick={handleCsvImport} className="w-full font-mono" disabled={!csvFile}>
+                      <Button onClick={handleCsvImport} className="w-full font-display bg-gradient-to-r from-primary to-accent hover:opacity-90" disabled={!csvFile}>
                         <Upload className="h-4 w-4 mr-2" />
                         Import Contacts
                       </Button>
@@ -549,8 +553,7 @@ export default function ContactsPage() {
             </div>
           </div>
 
-          {/* Filters */}
-          <Card>
+          <Card className="glass-card border-primary/20">
             <CardContent className="pt-6">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
@@ -560,15 +563,15 @@ export default function ContactsPage() {
                       placeholder="Search by name or phone..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 font-mono"
+                      className="pl-10 font-display bg-background/50 border-accent/20"
                     />
                   </div>
                 </div>
                 <Select value={selectedGroup} onValueChange={setSelectedGroup}>
-                  <SelectTrigger className="w-[200px] font-mono">
+                  <SelectTrigger className="w-[200px] font-display bg-background/50 border-primary/20">
                     <SelectValue placeholder="All Groups" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="glass-card border-primary/20">
                     <SelectItem value="all">All Groups</SelectItem>
                     {groups.map(group => (
                       <SelectItem key={group.id} value={group.id}>
@@ -578,10 +581,10 @@ export default function ContactsPage() {
                   </SelectContent>
                 </Select>
                 <Select value={selectedTag} onValueChange={setSelectedTag}>
-                  <SelectTrigger className="w-[200px] font-mono">
+                  <SelectTrigger className="w-[200px] font-display bg-background/50 border-accent/20">
                     <SelectValue placeholder="All Tags" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="glass-card border-accent/20">
                     <SelectItem value="all">All Tags</SelectItem>
                     {allTags.map(tag => (
                       <SelectItem key={tag} value={tag}>
@@ -591,10 +594,10 @@ export default function ContactsPage() {
                   </SelectContent>
                 </Select>
                 <Select value={pageSize.toString()} onValueChange={(v) => setPageSize(Number(v))}>
-                  <SelectTrigger className="w-[120px] font-mono">
+                  <SelectTrigger className="w-[120px] font-display bg-background/50 border-primary/20">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="glass-card border-primary/20">
                     <SelectItem value="25">25 / page</SelectItem>
                     <SelectItem value="50">50 / page</SelectItem>
                     <SelectItem value="100">100 / page</SelectItem>
@@ -604,20 +607,19 @@ export default function ContactsPage() {
             </CardContent>
           </Card>
 
-          {/* Contacts Table */}
-          <Card>
+          <Card className="glass-card border-accent/20">
             <CardHeader>
-              <CardTitle className="font-mono">
+              <CardTitle className="font-display">
                 {filteredContacts.length} Contact{filteredContacts.length !== 1 ? "s" : ""}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="text-center text-muted-foreground font-mono py-8">Loading contacts...</div>
+                <div className="text-center text-muted-foreground font-display py-8">Loading contacts...</div>
               ) : filteredContacts.length === 0 ? (
                 <div className="text-center py-12">
                   <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <p className="font-mono text-muted-foreground">No contacts found</p>
+                  <p className="font-display text-muted-foreground">No contacts found</p>
                   <p className="text-sm text-muted-foreground mt-2">
                     Add your first contact or import from CSV
                   </p>
@@ -626,23 +628,23 @@ export default function ContactsPage() {
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead className="font-mono">Name</TableHead>
-                        <TableHead className="font-mono">Phone</TableHead>
-                        <TableHead className="font-mono">Group</TableHead>
-                        <TableHead className="font-mono">Tags</TableHead>
-                        <TableHead className="font-mono">Created</TableHead>
+                      <TableRow className="border-primary/20">
+                        <TableHead className="font-display">Name</TableHead>
+                        <TableHead className="font-display">Phone</TableHead>
+                        <TableHead className="font-display">Group</TableHead>
+                        <TableHead className="font-display">Tags</TableHead>
+                        <TableHead className="font-display">Created</TableHead>
                         <TableHead className="w-[70px]"></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredContacts.map((contact) => (
-                        <TableRow key={contact.id}>
-                          <TableCell className="font-mono font-medium">{contact.name}</TableCell>
-                          <TableCell className="font-mono text-muted-foreground">{contact.phone}</TableCell>
+                        <TableRow key={contact.id} className="border-primary/20 hover:bg-gradient-to-r hover:from-primary/5 hover:to-accent/5">
+                          <TableCell className="font-display font-medium">{contact.name}</TableCell>
+                          <TableCell className="font-display text-muted-foreground">{contact.phone}</TableCell>
                           <TableCell>
                             {contact.group_name && (
-                              <Badge variant="outline" className="font-mono">
+                              <Badge variant="outline" className="font-display border-accent/40">
                                 <Folder className="h-3 w-3 mr-1" />
                                 {contact.group_name}
                               </Badge>
@@ -651,13 +653,13 @@ export default function ContactsPage() {
                           <TableCell>
                             <div className="flex flex-wrap gap-1">
                               {contact.tags?.map(tag => (
-                                <Badge key={tag} variant="secondary" className="font-mono text-xs">
+                                <Badge key={tag} className="font-display text-xs bg-gradient-to-r from-accent/80 to-primary/80">
                                   {tag}
                                 </Badge>
                               ))}
                             </div>
                           </TableCell>
-                          <TableCell className="font-mono text-xs text-muted-foreground">
+                          <TableCell className="font-display text-xs text-muted-foreground">
                             {new Date(contact.created_at).toLocaleDateString()}
                           </TableCell>
                           <TableCell>
@@ -667,7 +669,7 @@ export default function ContactsPage() {
                                   <MoreVertical className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+                              <DropdownMenuContent align="end" className="glass-card border-primary/20">
                                 <DropdownMenuItem>
                                   <Edit className="h-4 w-4 mr-2" />
                                   Edit
