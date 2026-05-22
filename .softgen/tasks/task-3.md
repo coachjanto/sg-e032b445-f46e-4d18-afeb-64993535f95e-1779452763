@@ -1,11 +1,11 @@
 ---
 title: Authentication Pages & Flow
-status: todo
+status: done
 priority: high
 type: feature
 tags: [auth, frontend]
 created_by: agent
-created_at: 2026-05-22T11:46:17Z
+created_at: 2026-05-22T11:51:09Z
 position: 3
 ---
 

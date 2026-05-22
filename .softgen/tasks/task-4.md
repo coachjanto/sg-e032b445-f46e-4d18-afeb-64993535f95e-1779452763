@@ -1,11 +1,11 @@
 ---
 title: Dashboard Layout & Navigation
-status: todo
+status: in_progress
 priority: high
 type: feature
 tags: [frontend, layout]
 created_by: agent
-created_at: 2026-05-22T11:46:17Z
+created_at: 2026-05-22T11:51:09Z
 position: 4
 ---
 

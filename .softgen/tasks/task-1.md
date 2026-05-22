@@ -1,11 +1,11 @@
 ---
 title: Database Schema & Authentication Setup
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [backend, database, auth]
 created_by: agent
-created_at: 2026-05-22T11:46:17Z
+created_at: 2026-05-22T11:51:09Z
 position: 1
 ---
 
