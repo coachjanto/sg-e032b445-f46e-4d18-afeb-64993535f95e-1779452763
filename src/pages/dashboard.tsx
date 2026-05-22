@@ -5,6 +5,7 @@ import { DashboardLayout } from "@/components/Layout/DashboardLayout";
 import { useI18n } from "@/hooks/useI18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MessageSquare, CheckCircle2, Smartphone, XCircle } from "lucide-react";
+import Link from "next/link";
 
 interface DashboardStats {
   totalMessages: number;
@@ -107,27 +108,66 @@ export default function DashboardPage() {
 
           {/* Stats Grid */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {statCards.map((card) => {
-              const Icon = card.icon;
-              return (
-                <Card key={card.title}>
-                  <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-mono font-medium text-muted-foreground">
-                      {card.title}
-                    </CardTitle>
-                    <Icon className={`h-5 w-5 ${card.color}`} />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-mono font-bold">
-                      {loading ? "..." : card.value}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {card.subtitle}
-                    </p>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium font-mono">{t("totalMessagesSent")}</CardTitle>
+                <MessageSquare className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold font-mono">{stats.totalMessages.toLocaleString()}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  +{stats.messagesThisWeek} this week
+                </p>
+                <Link href="/campaigns" className="text-xs text-accent hover:underline mt-2 inline-block">
+                  View campaigns →
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium font-mono">Active Devices</CardTitle>
+                <Smartphone className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold font-mono">{stats.activeDevices}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.connectedDevices} connected
+                </p>
+                <Link href="/devices" className="text-xs text-accent hover:underline mt-2 inline-block">
+                  Manage devices →
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium font-mono">Success Rate</CardTitle>
+                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold font-mono">{stats.successRate}%</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.deliveredMessages} delivered
+                </p>
+                <Link href="/contacts" className="text-xs text-accent hover:underline mt-2 inline-block">
+                  View contacts →
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium font-mono">{t("failedMessages")}</CardTitle>
+                <XCircle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold font-mono">{stats.failedMessages}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t("todayStats")}
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Quick Actions */}
@@ -136,27 +176,27 @@ export default function DashboardPage() {
               <CardTitle className="font-mono">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-3">
-              <a
+              <Link
                 href="/devices"
                 className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg hover:border-accent transition-colors"
               >
                 <Smartphone className="h-8 w-8 text-accent mb-2" />
                 <span className="font-mono text-sm">{t("addDevice")}</span>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/contacts"
                 className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg hover:border-accent transition-colors"
               >
                 <MessageSquare className="h-8 w-8 text-accent mb-2" />
                 <span className="font-mono text-sm">{t("addContact")}</span>
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/campaigns"
                 className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg hover:border-accent transition-colors"
               >
                 <CheckCircle2 className="h-8 w-8 text-accent mb-2" />
                 <span className="font-mono text-sm">{t("newCampaign")}</span>
-              </a>
+              </Link>
             </CardContent>
           </Card>
 
