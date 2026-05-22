@@ -92,7 +92,7 @@ export default function DevicesPage() {
       return;
     }
 
-    setDevices(data || []);
+    setDevices((data as SenderDevice[]) || []);
     setLoading(false);
   };
 
