@@ -11,8 +11,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"IBM Plex Mono"', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
-        mono: ['"JetBrains Mono"', 'Consolas', 'Monaco', 'monospace'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Sora', 'Inter', 'sans-serif'],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -88,10 +88,22 @@ const config: Config = {
             height: "0",
           },
         },
+        "gradient-shift": {
+          "0%, 100%": {
+            "background-position": "0% 50%",
+          },
+          "50%": {
+            "background-position": "100% 50%",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "gradient-shift": "gradient-shift 8s ease infinite",
+      },
+      backgroundSize: {
+        "200": "200% 200%",
       },
     },
   },
