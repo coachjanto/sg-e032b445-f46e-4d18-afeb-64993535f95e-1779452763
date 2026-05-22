@@ -116,7 +116,7 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="text-2xl font-bold font-mono">{stats.totalMessages.toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  +{stats.messagesThisWeek} this week
+                  {t("todayStats")}
                 </p>
                 <Link href="/campaigns" className="text-xs text-accent hover:underline mt-2 inline-block">
                   View campaigns →
@@ -132,7 +132,7 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="text-2xl font-bold font-mono">{stats.activeDevices}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {stats.connectedDevices} connected
+                  Currently connected
                 </p>
                 <Link href="/devices" className="text-xs text-accent hover:underline mt-2 inline-block">
                   Manage devices →
@@ -148,7 +148,7 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="text-2xl font-bold font-mono">{stats.successRate}%</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {stats.deliveredMessages} delivered
+                  {t("todayStats")}
                 </p>
                 <Link href="/contacts" className="text-xs text-accent hover:underline mt-2 inline-block">
                   View contacts →
