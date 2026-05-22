@@ -1,4 +1,4 @@
- 
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 export type Json =
   | string
   | number
@@ -367,6 +367,71 @@ export type Database = {
             foreignKeyName: "sender_devices_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      settings: {
+        Row: {
+          ai_enabled: boolean | null
+          ai_provider: string | null
+          cloudchat_api_key: string | null
+          cloudchat_enabled: boolean | null
+          cloudchat_endpoint: string | null
+          created_at: string | null
+          dripsender_api_key: string | null
+          dripsender_enabled: boolean | null
+          dripsender_webhook_url: string | null
+          gemini_api_key: string | null
+          gemini_model: string | null
+          id: string
+          openai_api_key: string | null
+          openai_model: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_enabled?: boolean | null
+          ai_provider?: string | null
+          cloudchat_api_key?: string | null
+          cloudchat_enabled?: boolean | null
+          cloudchat_endpoint?: string | null
+          created_at?: string | null
+          dripsender_api_key?: string | null
+          dripsender_enabled?: boolean | null
+          dripsender_webhook_url?: string | null
+          gemini_api_key?: string | null
+          gemini_model?: string | null
+          id?: string
+          openai_api_key?: string | null
+          openai_model?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_enabled?: boolean | null
+          ai_provider?: string | null
+          cloudchat_api_key?: string | null
+          cloudchat_enabled?: boolean | null
+          cloudchat_endpoint?: string | null
+          created_at?: string | null
+          dripsender_api_key?: string | null
+          dripsender_enabled?: boolean | null
+          dripsender_webhook_url?: string | null
+          gemini_api_key?: string | null
+          gemini_model?: string | null
+          id?: string
+          openai_api_key?: string | null
+          openai_model?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
