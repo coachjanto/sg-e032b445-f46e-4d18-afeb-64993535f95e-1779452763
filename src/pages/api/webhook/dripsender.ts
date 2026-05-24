@@ -51,11 +51,58 @@ export default async function handler(
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    // Get user from settings (webhook is tied to user's API key)
+    const { data: settingsData } = await supabase
+      .from("settings")
+      .select("user_id")
+      .eq("dripsender_enabled", true)
+      .maybeSingle();
+
+    if (!settingsData) {
+      console.log("No user found with Dripsender enabled");
+      return res.status(400).json({ error: "Dripsender not configured" });
+    }
+
+    const userId = settingsData.user_id;
+
+    // Get or create sender device for Dripsender
+    let deviceId: string;
+    const { data: existingDevice } = await supabase
+      .from("sender_devices")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("type", "dripsender")
+      .maybeSingle();
+
+    if (existingDevice) {
+      deviceId = existingDevice.id;
+    } else {
+      // Create device entry for Dripsender
+      const { data: newDevice, error: deviceError } = await supabase
+        .from("sender_devices")
+        .insert({
+          user_id: userId,
+          label: "Dripsender",
+          type: "dripsender",
+          status: "connected"
+        })
+        .select()
+        .single();
+
+      if (deviceError || !newDevice) {
+        console.error("Error creating device:", deviceError);
+        return res.status(500).json({ error: "Failed to create device" });
+      }
+
+      deviceId = newDevice.id;
+    }
+
     // Get or create contact
     const { data: existingContact } = await supabase
       .from("contacts")
       .select("id")
       .eq("phone", phoneNumber)
+      .eq("user_id", userId)
       .maybeSingle();
 
     let contactId: string;
@@ -76,6 +123,7 @@ export default async function handler(
       const { data: newContact, error: contactError } = await supabase
         .from("contacts")
         .insert({
+          user_id: userId,
           phone: phoneNumber,
           name: contactName || phoneNumber,
           tags: ["dripsender"],
@@ -96,12 +144,13 @@ export default async function handler(
     const { error: messageError } = await supabase
       .from("message_logs")
       .insert({
+        device_id: deviceId,
         contact_id: contactId,
-        message: messageBody,
+        phone_number: phoneNumber,
+        content: messageBody,
         direction: "incoming",
         status: "delivered",
-        external_id: messageId,
-        provider: "dripsender"
+        metadata: { external_id: messageId, provider: "dripsender" }
       });
 
     if (messageError) {
@@ -110,7 +159,7 @@ export default async function handler(
     }
 
     // Check if AI auto-reply is enabled
-    await handleAIAutoReply(contactId, phoneNumber, messageBody);
+    await handleAIAutoReply(deviceId, contactId, phoneNumber, messageBody);
 
     return res.status(200).json({ 
       success: true,
@@ -127,6 +176,7 @@ export default async function handler(
 }
 
 async function handleAIAutoReply(
+  deviceId: string,
   contactId: string,
   phoneNumber: string,
   incomingMessage: string
@@ -171,11 +221,13 @@ async function handleAIAutoReply(
       await supabase
         .from("message_logs")
         .insert({
+          device_id: deviceId,
           contact_id: contactId,
-          message: aiResponse,
+          phone_number: phoneNumber,
+          content: aiResponse,
           direction: "outgoing",
           status: "sent",
-          provider: "dripsender"
+          metadata: { provider: "dripsender" }
         });
     }
   } catch (error) {
