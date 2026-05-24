@@ -143,6 +143,29 @@ export default function Settings() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
 
+      // Ensure profile exists before saving settings
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!profile) {
+        // Create profile if it doesn't exist
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .insert({
+            id: user.id,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
+          throw new Error("Failed to create user profile. Please try logging out and back in.");
+        }
+      }
+
       const { error } = await supabase
         .from("settings")
         .upsert({
