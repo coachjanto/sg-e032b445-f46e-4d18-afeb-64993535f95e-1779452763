@@ -16,7 +16,6 @@ import { SEO } from "@/components/SEO";
 
 interface SettingsData {
   dripsender_api_key?: string;
-  dripsender_webhook_url?: string;
   dripsender_enabled: boolean;
   cloudchat_api_key?: string;
   cloudchat_endpoint?: string;
@@ -52,6 +51,10 @@ export default function Settings() {
     ? `${window.location.origin}/api/webhook/cloudchat`
     : "";
 
+  const dripsenderWebhookUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/api/webhook/dripsender`
+    : "";
+
   const copyWebhookUrl = () => {
     navigator.clipboard.writeText(webhookUrl);
     setCopied(true);
@@ -68,6 +71,16 @@ export default function Settings() {
     toast({
       title: "Copied!",
       description: "CloudChat webhook URL copied to clipboard",
+    });
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copyDripsenderWebhookUrl = () => {
+    navigator.clipboard.writeText(dripsenderWebhookUrl);
+    setCopied(true);
+    toast({
+      title: "Copied!",
+      description: "Dripsender webhook URL copied to clipboard",
     });
     setTimeout(() => setCopied(false), 2000);
   };
@@ -101,7 +114,6 @@ export default function Settings() {
       if (data) {
         setSettings({
           dripsender_api_key: data.dripsender_api_key || "",
-          dripsender_webhook_url: data.dripsender_webhook_url || "",
           dripsender_enabled: data.dripsender_enabled || false,
           cloudchat_api_key: data.cloudchat_api_key || "",
           cloudchat_endpoint: data.cloudchat_endpoint || "",
@@ -214,15 +226,15 @@ export default function Settings() {
                     Copy this webhook URL and configure it in your Dripsender dashboard
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <div className="flex gap-2">
                     <Input
-                      value={webhookUrl}
+                      value={dripsenderWebhookUrl}
                       readOnly
                       className="bg-background/70 border-accent/30 font-mono text-sm"
                     />
                     <Button
-                      onClick={copyWebhookUrl}
+                      onClick={copyDripsenderWebhookUrl}
                       variant="outline"
                       className="shrink-0 border-accent/30 hover:bg-accent/10"
                     >
@@ -233,9 +245,17 @@ export default function Settings() {
                       )}
                     </Button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    This webhook receives incoming WhatsApp messages from Dripsender
-                  </p>
+                  <div className="glass-card p-3 rounded-lg border border-accent/20 bg-accent/5">
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Setup Instructions:</strong>
+                    </p>
+                    <ol className="text-xs text-muted-foreground mt-2 space-y-1 list-decimal list-inside">
+                      <li>Copy the webhook URL above</li>
+                      <li>Go to your Dripsender dashboard webhook settings</li>
+                      <li>Paste the webhook URL</li>
+                      <li>Save and test the connection</li>
+                    </ol>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -243,7 +263,7 @@ export default function Settings() {
                 <CardHeader>
                   <CardTitle className="font-display text-xl">Dripsender API Configuration</CardTitle>
                   <CardDescription>
-                    Configure your Dripsender API for WhatsApp blast campaigns
+                    Configure your Dripsender API key for WhatsApp messaging
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -251,7 +271,7 @@ export default function Settings() {
                     <div className="space-y-0.5">
                       <Label className="font-display">Enable Dripsender</Label>
                       <p className="text-sm text-muted-foreground">
-                        Turn on to use Dripsender for campaigns
+                        Turn on to use Dripsender for WhatsApp campaigns
                       </p>
                     </div>
                     <Switch
@@ -268,7 +288,7 @@ export default function Settings() {
                       <Input
                         id="dripsender-key"
                         type="password"
-                        placeholder="Enter your Dripsender API key"
+                        placeholder="dk_..."
                         value={settings.dripsender_api_key || ""}
                         onChange={(e) =>
                           setSettings({ ...settings, dripsender_api_key: e.target.value })
@@ -278,24 +298,7 @@ export default function Settings() {
                       <Shield className="w-5 h-5 text-primary shrink-0 mt-2" />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Your API key is encrypted and stored securely
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="dripsender-webhook" className="font-display">Webhook URL</Label>
-                    <Input
-                      id="dripsender-webhook"
-                      type="url"
-                      placeholder="https://your-domain.com/api/webhook"
-                      value={settings.dripsender_webhook_url || ""}
-                      onChange={(e) =>
-                        setSettings({ ...settings, dripsender_webhook_url: e.target.value })
-                      }
-                      className="bg-background/50 border-primary/20 focus:border-primary"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Webhook URL for receiving Dripsender callbacks
+                      Get your API key from Dripsender dashboard. Format: dk_xxxxx
                     </p>
                   </div>
                 </CardContent>
