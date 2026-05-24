@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { supabase } from "@/integrations/supabase/client";
-import Textarea from "@/components/ui/Textarea";
 
 /**
  * Dripsender Webhook Endpoint
