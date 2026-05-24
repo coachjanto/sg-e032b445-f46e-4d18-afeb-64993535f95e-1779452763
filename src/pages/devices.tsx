@@ -54,6 +54,10 @@ export default function DevicesPage() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedTab, setSelectedTab] = useState("qr");
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [connectingDevice, setConnectingDevice] = useState<SenderDevice | null>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [connectionStatus, setConnectionStatus] = useState<string>("Generating QR Code...");
 
   const [qrLabel, setQrLabel] = useState("");
   const [dsLabel, setDsLabel] = useState("");
@@ -301,6 +305,157 @@ export default function DevicesPage() {
     fetchDevices();
   };
 
+  const handleConnectQR = async (device: SenderDevice) => {
+    setConnectingDevice(device);
+    setQrDialogOpen(true);
+    setConnectionStatus("Generating QR Code...");
+    setQrCodeUrl("");
+
+    try {
+      // Update device status to connecting
+      await supabase
+        .from("sender_devices")
+        .update({ status: "connecting" })
+        .eq("id", device.id);
+
+      // TODO: Replace with actual QR generation API
+      // For now, generate a placeholder QR code URL
+      // In production, this should call your WhatsApp QR generation endpoint
+      const placeholderQR = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=wa-connect-${device.id}`;
+      
+      setQrCodeUrl(placeholderQR);
+      setConnectionStatus("Scan QR Code with WhatsApp");
+
+      // Simulate checking connection status (polling)
+      // In production, use WebSocket or polling to real API
+      const checkInterval = setInterval(async () => {
+        const { data: updatedDevice } = await supabase
+          .from("sender_devices")
+          .select("status")
+          .eq("id", device.id)
+          .single();
+
+        if (updatedDevice?.status === "connected") {
+          setConnectionStatus("✅ Connected Successfully!");
+          clearInterval(checkInterval);
+          fetchDevices();
+          setTimeout(() => {
+            setQrDialogOpen(false);
+          }, 2000);
+        }
+      }, 3000);
+
+      // Stop checking after 2 minutes
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        if (connectionStatus !== "✅ Connected Successfully!") {
+          setConnectionStatus("QR Code Expired. Please try again.");
+          supabase
+            .from("sender_devices")
+            .update({ status: "expired" })
+            .eq("id", device.id);
+        }
+      }, 120000);
+
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate QR code",
+        variant: "destructive",
+      });
+      setQrDialogOpen(false);
+    }
+  };
+
+  const handleTestConnection = async (device: SenderDevice) => {
+    setConnectingDevice(device);
+    
+    try {
+      // Update status to connecting
+      await supabase
+        .from("sender_devices")
+        .update({ status: "connecting" })
+        .eq("id", device.id);
+
+      fetchDevices();
+
+      // Parse credentials
+      const credentials = device.credentials_encrypted 
+        ? JSON.parse(device.credentials_encrypted as string)
+        : null;
+
+      if (!credentials) {
+        throw new Error("No credentials found for this device");
+      }
+
+      let testResult = false;
+
+      // Test connection based on device type
+      if (device.type === "cloudchat") {
+        // Test CloudChat connection
+        const response = await fetch(`https://app.cloudchat.id/api/v1/instances/${credentials.instanceId}/status`, {
+          headers: {
+            "Authorization": `Bearer ${credentials.apiKey}`,
+          },
+        });
+        testResult = response.ok;
+      } else if (device.type === "dripsender") {
+        // Test DripSender connection
+        const response = await fetch(`${credentials.baseUrl}/api/v1/auth/me`, {
+          headers: {
+            "Authorization": `Bearer ${credentials.apiKey}`,
+          },
+        });
+        testResult = response.ok;
+      } else if (device.type === "meta") {
+        // Test Meta API connection
+        const response = await fetch(
+          `https://graph.facebook.com/v18.0/${credentials.phoneNumberId}`,
+          {
+            headers: {
+              "Authorization": `Bearer ${credentials.accessToken}`,
+            },
+          }
+        );
+        testResult = response.ok;
+      }
+
+      // Update device status
+      const newStatus = testResult ? "connected" : "disconnected";
+      await supabase
+        .from("sender_devices")
+        .update({ 
+          status: newStatus,
+          last_active: testResult ? new Date().toISOString() : null,
+        })
+        .eq("id", device.id);
+
+      toast({
+        title: testResult ? "Success" : "Failed",
+        description: testResult 
+          ? "Device connected successfully" 
+          : "Failed to connect. Please check your credentials.",
+        variant: testResult ? "default" : "destructive",
+      });
+
+      fetchDevices();
+
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Connection test failed",
+        variant: "destructive",
+      });
+      
+      await supabase
+        .from("sender_devices")
+        .update({ status: "disconnected" })
+        .eq("id", device.id);
+      
+      fetchDevices();
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "connected":
@@ -527,6 +682,92 @@ export default function DevicesPage() {
             </Dialog>
           </div>
 
+          {/* QR Code Connection Dialog */}
+          <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+            <DialogContent className="glass-card border-primary/30 max-w-md">
+              <DialogHeader>
+                <DialogTitle className="font-display text-xl flex items-center gap-2">
+                  <QrCode className="h-5 w-5 text-accent" />
+                  Connect WhatsApp
+                </DialogTitle>
+                <DialogDescription>
+                  Scan this QR code with your WhatsApp mobile app
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-6 py-4">
+                <div className="flex flex-col items-center justify-center space-y-4">
+                  {qrCodeUrl ? (
+                    <div className="p-4 bg-white rounded-lg border-4 border-primary/20">
+                      <img 
+                        src={qrCodeUrl} 
+                        alt="QR Code" 
+                        className="w-64 h-64"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-64 h-64 flex items-center justify-center bg-muted/20 rounded-lg border-2 border-dashed border-primary/20">
+                      <RefreshCw className="h-12 w-12 text-primary/50 animate-spin" />
+                    </div>
+                  )}
+                  
+                  <div className="text-center space-y-2">
+                    <p className="font-display text-lg">{connectionStatus}</p>
+                    <div className="glass-card p-4 rounded-lg border border-primary/20 text-left">
+                      <p className="text-sm font-semibold mb-2">How to connect:</p>
+                      <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                        <li>Open WhatsApp on your phone</li>
+                        <li>Tap Menu or Settings → Linked Devices</li>
+                        <li>Tap "Link a Device"</li>
+                        <li>Point your phone at this screen to scan the QR code</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+
+                {connectingDevice && (
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-primary/5 to-accent/5 border border-primary/20">
+                    <div className="flex items-center gap-3">
+                      <Smartphone className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="text-sm font-display">{connectingDevice.label}</p>
+                        <p className="text-xs text-muted-foreground">QR Connection</p>
+                      </div>
+                    </div>
+                    {getStatusBadge(connectingDevice.status)}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setQrDialogOpen(false)}
+                  className="flex-1 border-primary/20"
+                >
+                  Cancel
+                </Button>
+                {qrCodeUrl && (
+                  <Button 
+                    onClick={() => {
+                      setConnectionStatus("Generating new QR Code...");
+                      setQrCodeUrl("");
+                      setTimeout(() => {
+                        if (connectingDevice) {
+                          handleConnectQR(connectingDevice);
+                        }
+                      }, 500);
+                    }}
+                    className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh QR
+                  </Button>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+
           {loading ? (
             <Card className="glass-card border-primary/20">
               <CardContent className="py-12">
@@ -569,7 +810,15 @@ export default function DevicesPage() {
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Label
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              if (device.type === "qr") {
+                                handleConnectQR(device);
+                              } else {
+                                handleTestConnection(device);
+                              }
+                            }}
+                          >
                             <Power className="h-4 w-4 mr-2" />
                             Reconnect
                           </DropdownMenuItem>
@@ -601,13 +850,21 @@ export default function DevicesPage() {
                         </div>
                       )}
                       {device.type === "qr" && device.status === "disconnected" && (
-                        <Button className="w-full mt-4 bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20" variant="outline">
+                        <Button 
+                          onClick={() => handleConnectQR(device)}
+                          className="w-full mt-4 bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20" 
+                          variant="outline"
+                        >
                           <QrCode className="h-4 w-4 mr-2" />
                           Connect via QR
                         </Button>
                       )}
                       {(device.type === "dripsender" || device.type === "cloudchat" || device.type === "meta") && device.status === "disconnected" && (
-                        <Button className="w-full mt-4 bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20" variant="outline">
+                        <Button 
+                          onClick={() => handleTestConnection(device)}
+                          className="w-full mt-4 bg-gradient-to-r from-primary/10 to-accent/10 hover:from-primary/20 hover:to-accent/20" 
+                          variant="outline"
+                        >
                           <Wifi className="h-4 w-4 mr-2" />
                           Test Connection
                         </Button>
