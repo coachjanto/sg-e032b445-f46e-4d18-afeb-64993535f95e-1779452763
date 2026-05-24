@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { supabase } from "@/integrations/supabase/client";
+import Textarea from "@/components/ui/Textarea";
 
 /**
  * Dripsender Webhook Endpoint
@@ -192,24 +193,57 @@ async function handleAIAutoReply(
       return;
     }
 
-    // Generate AI response
+    // Check keyword triggers if configured
+    if (settings.ai_keywords && settings.ai_keywords.length > 0) {
+      const hasKeyword = settings.ai_keywords.some((keyword: string) =>
+        incomingMessage.toLowerCase().includes(keyword.toLowerCase())
+      );
+      
+      if (!hasKeyword) {
+        console.log("Message does not contain trigger keywords, skipping AI response");
+        return;
+      }
+    }
+
+    // Check business hours if enabled
+    if (settings.ai_business_hours_enabled) {
+      const now = new Date();
+      const currentTime = now.toTimeString().slice(0, 5); // HH:MM format
+      
+      const isWithinBusinessHours = 
+        currentTime >= settings.ai_business_hours_start &&
+        currentTime <= settings.ai_business_hours_end;
+
+      if (!isWithinBusinessHours) {
+        console.log("Outside business hours, skipping AI response");
+        return;
+      }
+    }
+
+    // Generate AI response with custom system prompt
     let aiResponse = "";
 
     if (settings.ai_provider === "openai" && settings.openai_api_key) {
       aiResponse = await generateOpenAIResponse(
         incomingMessage,
         settings.openai_api_key,
-        settings.openai_model
+        settings.openai_model,
+        settings.ai_system_prompt
       );
     } else if (settings.ai_provider === "gemini" && settings.gemini_api_key) {
       aiResponse = await generateGeminiResponse(
         incomingMessage,
         settings.gemini_api_key,
-        settings.gemini_model
+        settings.gemini_model,
+        settings.ai_system_prompt
       );
     }
 
     if (aiResponse && settings.dripsender_api_key) {
+      // Apply response delay (natural typing simulation)
+      const delayMs = (settings.ai_response_delay || 2) * 1000;
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+
       // Send reply via Dripsender
       await sendDripsenderMessage(
         phoneNumber,
@@ -227,7 +261,7 @@ async function handleAIAutoReply(
           content: aiResponse,
           direction: "outgoing",
           status: "sent",
-          metadata: { provider: "dripsender" }
+          metadata: { provider: "dripsender", ai_generated: true }
         });
     }
   } catch (error) {
@@ -238,7 +272,8 @@ async function handleAIAutoReply(
 async function generateOpenAIResponse(
   message: string,
   apiKey: string,
-  model: string
+  model: string,
+  systemPrompt: string
 ): Promise<string> {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -251,7 +286,7 @@ async function generateOpenAIResponse(
       messages: [
         {
           role: "system",
-          content: "You are a helpful WhatsApp assistant. Keep responses concise and friendly."
+          content: systemPrompt
         },
         {
           role: "user",
@@ -270,7 +305,8 @@ async function generateOpenAIResponse(
 async function generateGeminiResponse(
   message: string,
   apiKey: string,
-  model: string
+  model: string,
+  systemPrompt: string
 ): Promise<string> {
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
@@ -284,7 +320,7 @@ async function generateGeminiResponse(
           {
             parts: [
               {
-                text: `You are a helpful WhatsApp assistant. Keep responses concise and friendly.\n\nUser message: ${message}`
+                text: `${systemPrompt}\n\nUser message: ${message}`
               }
             ]
           }

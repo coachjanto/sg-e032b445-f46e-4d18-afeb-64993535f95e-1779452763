@@ -26,6 +26,12 @@ interface SettingsData {
   openai_model: string;
   gemini_api_key?: string;
   gemini_model: string;
+  ai_keywords: string[];
+  ai_system_prompt: string;
+  ai_business_hours_enabled: boolean;
+  ai_business_hours_start: string;
+  ai_business_hours_end: string;
+  ai_response_delay: number;
 }
 
 export default function Settings() {
@@ -41,6 +47,12 @@ export default function Settings() {
     ai_provider: "openai",
     openai_model: "gpt-3.5-turbo",
     gemini_model: "gemini-pro",
+    ai_keywords: [],
+    ai_system_prompt: "You are a helpful WhatsApp assistant. Keep responses concise and friendly.",
+    ai_business_hours_enabled: false,
+    ai_business_hours_start: "09:00",
+    ai_business_hours_end: "17:00",
+    ai_response_delay: 2,
   });
 
   const webhookUrl = typeof window !== "undefined" 
@@ -124,6 +136,12 @@ export default function Settings() {
           openai_model: data.openai_model || "gpt-3.5-turbo",
           gemini_api_key: data.gemini_api_key || "",
           gemini_model: data.gemini_model || "gemini-pro",
+          ai_keywords: data.ai_keywords || [],
+          ai_system_prompt: data.ai_system_prompt || "You are a helpful WhatsApp assistant. Keep responses concise and friendly.",
+          ai_business_hours_enabled: data.ai_business_hours_enabled || false,
+          ai_business_hours_start: data.ai_business_hours_start || "09:00",
+          ai_business_hours_end: data.ai_business_hours_end || "17:00",
+          ai_response_delay: data.ai_response_delay || 2,
         });
       }
     } catch (error: any) {
@@ -562,6 +580,120 @@ export default function Settings() {
                       </div>
                     </>
                   )}
+
+                  <div className="border-t border-primary/20 pt-6 mt-6">
+                    <h3 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-accent" />
+                      Advanced AI Settings
+                    </h3>
+                    
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="ai-keywords" className="font-display">Keyword Triggers (Optional)</Label>
+                        <Input
+                          id="ai-keywords"
+                          placeholder="info, harga, bantuan, order (separated by comma)"
+                          value={settings.ai_keywords.join(", ")}
+                          onChange={(e) =>
+                            setSettings({ 
+                              ...settings, 
+                              ai_keywords: e.target.value.split(",").map(k => k.trim()).filter(k => k) 
+                            })
+                          }
+                          className="bg-background/50 border-primary/20 focus:border-primary"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          AI akan hanya merespon jika pesan mengandung kata kunci ini. Kosongkan untuk merespon semua pesan.
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="ai-system-prompt" className="font-display">Custom System Prompt</Label>
+                        <textarea
+                          id="ai-system-prompt"
+                          rows={4}
+                          placeholder="Contoh: Anda adalah customer service toko fashion kami. Jawab dengan ramah dan profesional..."
+                          value={settings.ai_system_prompt}
+                          onChange={(e) =>
+                            setSettings({ ...settings, ai_system_prompt: e.target.value })
+                          }
+                          className="w-full px-3 py-2 bg-background/50 border border-primary/20 rounded-md focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary text-sm"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Set personality dan context bisnis untuk AI. Ini akan mempengaruhi cara AI merespons.
+                        </p>
+                      </div>
+
+                      <div className="space-y-4 p-4 rounded-lg border border-accent/20 bg-accent/5">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label className="font-display">Business Hours</Label>
+                            <p className="text-sm text-muted-foreground">
+                              AI hanya aktif di jam kerja tertentu
+                            </p>
+                          </div>
+                          <Switch
+                            checked={settings.ai_business_hours_enabled}
+                            onCheckedChange={(checked) =>
+                              setSettings({ ...settings, ai_business_hours_enabled: checked })
+                            }
+                          />
+                        </div>
+
+                        {settings.ai_business_hours_enabled && (
+                          <div className="grid grid-cols-2 gap-4 mt-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="business-start" className="text-sm">Start Time</Label>
+                              <Input
+                                id="business-start"
+                                type="time"
+                                value={settings.ai_business_hours_start}
+                                onChange={(e) =>
+                                  setSettings({ ...settings, ai_business_hours_start: e.target.value })
+                                }
+                                className="bg-background/50 border-accent/20"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="business-end" className="text-sm">End Time</Label>
+                              <Input
+                                id="business-end"
+                                type="time"
+                                value={settings.ai_business_hours_end}
+                                onChange={(e) =>
+                                  setSettings({ ...settings, ai_business_hours_end: e.target.value })
+                                }
+                                className="bg-background/50 border-accent/20"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="ai-delay" className="font-display">Response Delay (seconds)</Label>
+                        <div className="flex items-center gap-4">
+                          <input
+                            id="ai-delay"
+                            type="range"
+                            min="1"
+                            max="10"
+                            value={settings.ai_response_delay}
+                            onChange={(e) =>
+                              setSettings({ ...settings, ai_response_delay: parseInt(e.target.value) })
+                            }
+                            className="flex-1"
+                          />
+                          <span className="text-sm font-medium w-12 text-center bg-primary/10 px-3 py-1 rounded">
+                            {settings.ai_response_delay}s
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Delay sebelum AI mengirim response. Membuat terlihat lebih natural seperti manusia mengetik.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

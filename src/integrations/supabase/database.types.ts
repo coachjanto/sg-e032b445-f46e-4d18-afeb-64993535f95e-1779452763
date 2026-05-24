@@ -374,8 +374,14 @@ export type Database = {
       }
       settings: {
         Row: {
+          ai_business_hours_enabled: boolean | null
+          ai_business_hours_end: string | null
+          ai_business_hours_start: string | null
           ai_enabled: boolean | null
+          ai_keywords: string[] | null
           ai_provider: string | null
+          ai_response_delay: number | null
+          ai_system_prompt: string | null
           cloudchat_api_key: string | null
           cloudchat_enabled: boolean | null
           cloudchat_endpoint: string | null
@@ -392,8 +398,14 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_business_hours_enabled?: boolean | null
+          ai_business_hours_end?: string | null
+          ai_business_hours_start?: string | null
           ai_enabled?: boolean | null
+          ai_keywords?: string[] | null
           ai_provider?: string | null
+          ai_response_delay?: number | null
+          ai_system_prompt?: string | null
           cloudchat_api_key?: string | null
           cloudchat_enabled?: boolean | null
           cloudchat_endpoint?: string | null
@@ -410,8 +422,14 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_business_hours_enabled?: boolean | null
+          ai_business_hours_end?: string | null
+          ai_business_hours_start?: string | null
           ai_enabled?: boolean | null
+          ai_keywords?: string[] | null
           ai_provider?: string | null
+          ai_response_delay?: number | null
+          ai_system_prompt?: string | null
           cloudchat_api_key?: string | null
           cloudchat_enabled?: boolean | null
           cloudchat_endpoint?: string | null
