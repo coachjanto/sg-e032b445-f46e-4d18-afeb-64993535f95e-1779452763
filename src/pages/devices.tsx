@@ -45,6 +45,7 @@ interface SenderDevice {
   status: "connected" | "disconnected" | "connecting" | "qr_ready" | "expired";
   phone_number: string | null;
   last_active: string | null;
+  credentials_encrypted: string | null;
 }
 
 export default function DevicesPage() {
